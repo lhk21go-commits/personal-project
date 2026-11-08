@@ -1,0 +1,95 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" import="java.sql.*" %>    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>회원가입하기</title>
+</head>
+<body>
+	<h1>회원 가입 하기</h1>
+<%
+	/* 인코딩 설정 */
+	request.setCharacterEncoding("utf-8");
+		
+	/* form에서 정보 추출 */
+	String id = request.getParameter("id");
+	String pass = request.getParameter("pass");
+	String passchk = request.getParameter("passchk");
+	String email = request.getParameter("email");
+	String tel = request.getParameter("tel");
+	/* 다중선택은 배열로 처리 */
+	String[] hobby = request.getParameterValues("hobby");
+	String hobbies = "";
+	if(hobby != null){
+		for(int i=0; i<hobby.length; i++){
+			hobbies += hobby[i] + " ";
+		}
+		hobbies = hobbies.trim();
+	}
+	String job = request.getParameter("job");		
+	String age = request.getParameter("age");		
+	String info = request.getParameter("info");		
+	
+	//DB 연동 시작 --------------------------------------
+	Connection con = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	boolean idChk = false;
+	
+	String driver = "com.mysql.cj.jdbc.Driver";
+	String url = "jdbc:mysql://localhost:3306/jspdb?serverTimezone=UTC&useSSL=false";
+	String user = "root";
+	String password = "1234";
+	
+	try{
+		/* 드라이버 로딩  */
+		Class.forName(driver);
+		/* DB연결 */
+		con = DriverManager.getConnection(url, user, password);
+		/* 동일 아이디 검사 */
+		String chkSql = "select id from member where id=?";
+		pstmt = con.prepareStatement(chkSql);
+		pstmt.setString(1, id);
+		rs = pstmt.executeQuery();
+		if(rs.next()){	%>
+			<script type="text/javascript">
+				alert("이미 존재하는 아이디입니다");
+				history.go(-1);	
+			</script>
+	<%	}else{
+			/* 입력정보 예외처리 후 정상인 경우 DB저장 */
+			String sql = "insert into member values(?,?,?,?,?,?,?,?)";
+			pstmt = con.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			pstmt.setString(2, pass);
+			pstmt.setString(3, email);
+			pstmt.setString(4, tel);
+			pstmt.setString(5, hobbies);
+			pstmt.setString(6, job);
+			pstmt.setString(7, age);
+			pstmt.setString(8, info);
+			/* 쿼리문 실행 */
+			pstmt.executeUpdate();
+			
+		%>	// 정상 정보인 경우 DB연결
+			<script>
+				alert("회원가입을 축하드립니다.");
+				location.href="memberList.jsp";
+			</script>
+	<% }	
+	}catch(Exception e){
+		e.printStackTrace();
+	}finally{
+		try{
+			if(rs != null) rs.close();
+			if(pstmt != null) pstmt.close();
+			if(con != null) con.close();
+		}catch(Exception e){ e.printStackTrace();}
+	}	%>
+	
+	
+</body>
+</html>

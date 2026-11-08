@@ -1,0 +1,98 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" import="java.sql.*" %>
+<%@ include file="db_conn.jsp" %>
+
+<%
+	int nextNo = 0;
+
+	try{
+		Class.forName(driver);
+		con = DriverManager.getConnection(url, user, password);
+		
+		String sql = "select ifnull(max(custno), 100000)+1 as cust from memeber_tbl_02";
+		pstmt = con.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+		
+		if(rs.next()){
+			nextNo = rs.getInt("cust");
+		}
+				
+	}catch(Exception e){
+		e.printStackTrace();
+	}finally{
+		if(rs != null){ try{ rs.close(); } catch(Exception e){} }
+		if(pstmt != null){ try{ pstmt.close(); } catch(Exception e){} }
+		if(con != null){ try{ con.close(); } catch(Exception e){} }
+	}
+
+%>
+
+	<%@ include file="header.jsp" %>
+	
+	<section>
+		<h2>홈쇼핑 회원등록</h2>
+		<form action="joinProc.jsp" method="post">
+			<table class="form">
+				<tr>
+					<th>회원번호(자동생성)</th>
+					<td>
+						<input type="text" name="custno" value="<%=nextNo %>" readonly>
+					</td>
+				</tr>
+				<tr>
+					<th>회원성명</th>
+					<td>
+						<input type="text" name="custname" >
+					</td>
+				</tr>
+				<tr>
+					<th>회원전화</th>
+					<td>
+						<input type="text" name="phone" >
+					</td>
+				</tr>
+				<tr>
+					<th>회원주소</th>
+					<td>
+						<input type="text" name="address" >
+					</td>
+				</tr>
+				<tr>
+					<th>가입일자</th>
+					<td>
+						<input type="text" name="joindate" > 예)20151202
+					</td>
+				</tr>
+				<tr>
+					<th>고객등급[A:VIP, B:일반, C:직원]</th>
+					<td>
+						<select>
+							<option name="grade" value="">선택</option>
+							<option name="grade" value="A">VIP</option>
+							<option name="grade" value="B">일반</option>
+							<option name="grade" value="C">직원</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>도시코드</th>
+					<td>
+						<input type="text" name="city">
+					</td>
+				</tr>
+				<tr colspan="2">
+					<input type="button" value="등 록" onclice="checkForm()">
+					<input type="button" value="조 회" onclice="location.href='memberFormm.jsp'">
+			</table>	
+		</form> 
+		
+	
+	
+	
+	</section>
+	
+	
+	
+	
+	<%@ include file="footer.jsp" %>

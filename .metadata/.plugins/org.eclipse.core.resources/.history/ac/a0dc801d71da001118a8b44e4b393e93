@@ -1,0 +1,145 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" import="java.sql.*" %>    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	request.setCharacterEncoding("utf-8");
+
+	
+
+	String id = request.getParameter("id");
+	String pass = request.getParameter("pass");
+	String passchk = request.getParameter("passchk");
+	String email = request.getParameter("email");
+	String tel = request.getParameter("tel");
+	String[] hobby = request.getParameterValues("hobby");
+	String hobbies = "";
+	if(hobby != null){
+		for(int i=0; i<hobby.length; i++){
+			hobbies += hobby[i] + " ";
+		}
+		hobbies = hobbies.trim();
+	}
+	String job = request.getParameter("job");		
+	String age = request.getParameter("age");		
+	String info = request.getParameter("info");		
+
+	String msg = null;
+	
+	if(id == null || id.isEmpty()){
+		msg = "회원가입을 입력하세요";
+	}else if(pass == null || pass.isEmpty()){
+		msg = "비밀번호를 입력하세요";
+	}else if(!pass.equals(passchk)){
+		msg = "비밀번호가 일치하지 않습니다";
+	}else if(email == null || email.isEmpty()){
+		msg = "이메일을 입력하세요";
+	}else if(tel == null || tel.isEmpty()){
+		msg = "전화번호를 입력하세요";
+	}else if(hobbies == null || hobbies.isEmpty()){
+		msg = "취미를 입력하세요";
+	}else if(job == null || job.isEmpty()){
+		msg = "직업을 입력하세요";
+	}else if(age == null || age.isEmpty()){
+		msg = "연령을 입력하세요";
+	}
+	
+	if(msg != null){
+%>
+	<script type="text/javascript">
+		alert("<%=msg %>");
+		history.go(-1);	
+	</script>
+<% }else {
+	Connection con = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	
+	String driver = "com.mysql.cj.jdbc.Driver";
+	String url = "jdbc:mysql://localhost:3306/jspdb?serverTimezone=UTC&useSSL=false";
+	String user = "root";
+	String password = "1234";
+	boolean isSuccess = false;
+	
+	try{
+		Class.forName(driver);
+		con = DriverManager.getConnection(url, user, password);
+		String sql = "insert into member values(?,?,?,?,?,?,?,?)";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, id);
+		pstmt.setString(2, pass);
+		pstmt.setString(3, email);
+		pstmt.setString(4, tel);
+		pstmt.setString(5, hobbies);
+		pstmt.setString(6, job);
+		pstmt.setString(7, age);
+		pstmt.setString(8, info);
+		
+		int result = pstmt.executeUpdate();
+		
+		if(result > 0){
+			isSuccess = true;
+		}
+		
+	}catch(Exception e){
+		e.printStackTrace();
+		out.println("DB fail");
+	}finally{
+		try{
+			if(rs != null) rs.close();
+			if(pstmt != null) pstmt.close();
+			if(con != null) con.close();
+		}catch(Exception e){ e.printStackTrace();}
+	}
+	
+	if(isSuccess){	%>
+		<div class="infocontainer">
+			<h2>회원가입 성공</h2>
+			<table width="400" border="1">
+				<tr height="50">
+					<td width="150" align="center">아이디</td>
+					<td width="350"><%=id %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">이메일</td>
+					<td width="350"><%=email %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">전화번호</td>
+					<td width="350"><%=tel %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">취미</td>
+					<td width="350"><%=hobbies %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">직업</td>
+					<td width="350"><%=job %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">연령</td>
+					<td width="350"><%=age %></td>
+				</tr>
+				<tr height="50">
+					<td width="150" align="center">남기는 말</td>
+					<td width="350"><%=info %></td>
+				</tr>
+			</table>
+			<a href="MemberJoin2.jsp">이전페이지로</a>
+		</div>		
+<%	}else { %>
+		<script>
+			alert("DB 저장에 실패했습니다. 다시 시도하세요")
+			history.go(-1);
+		</script>
+
+<%	 }
+	}%>
+</body>
+</html>

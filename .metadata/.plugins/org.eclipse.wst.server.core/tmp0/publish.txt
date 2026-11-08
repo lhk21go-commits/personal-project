@@ -1,0 +1,5 @@
+#Tomcat publish data
+#Mon Nov 09 00:26:44 KST 2026
+org.eclipse.jst.jee.server\:chapter02=C\:\\server\\apache-tomcat-9.0.123\\wtpwebapps\\chapter02
+org.eclipse.jst.jee.server\:chapter03MVC=C\:\\server\\apache-tomcat-9.0.123\\wtpwebapps\\chapter03MVC
+org.eclipse.jst.jee.server\:chapter01=C\:\\server\\apache-tomcat-9.0.123\\wtpwebapps\\chapter01

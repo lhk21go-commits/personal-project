@@ -1,0 +1,79 @@
+package control.member;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import model.MemberTestDTO;
+import model.member.MemberDAO;
+import model.member.MemberDTO;
+
+@WebServlet("/MProc.do")
+public class MemberJoinProc extends HttpServlet {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		reqPro(request, response);
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		reqPro(request, response);
+	}
+
+	protected void reqPro(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		
+		MemberDTO mdto = new MemberDTO();
+		MemberDAO mdao = new MemberDAO();
+		
+		String id = request.getParameter("id");
+		mdto.setId(id);
+		String chkid = mdao.getId(id);
+		
+		String pass = request.getParameter("pass");
+		String passchk = request.getParameter("passchk");
+		//System.out.println("입력" + id + "조회결과" + chkid);
+		mdto.setPass(pass);
+		mdto.setPasschk(passchk);
+		mdto.setEmail(request.getParameter("email"));
+		mdto.setTel(request.getParameter("tel"));
+		
+		String[] arr = request.getParameterValues("hobby");
+		String hobbies = "";
+		for(String hob : arr) {
+			hobbies += hob + " ";
+		}
+		mdto.setHobby("hobbies");
+		
+		mdto.setJob(request.getParameter("job"));
+		mdto.setAge(request.getParameter("age"));
+		mdto.setInfo(request.getParameter("info"));
+		//중복 아이디 체크
+		String jspAddress="";
+		if(id.equals(chkid)) {
+			request.setAttribute("msgid", "이미 존재하는 아이디입니다.");
+			jspAddress = "/member/joinIdErr.jsp";
+		//패스워드 체크	
+		}else if(pass.equals(passchk)) {
+			//mdao의 insert 메소드
+			mdao.insertMember(mdto);
+			
+			//회원 전체 목목을 출력하는 MemberListCon.do 생성할 예정
+			//MemberJoinProc 컨트롤러에서 -> MemberListCon.do 컨트롤러로 이동
+			jspAddress ="/MemberListCon.do";
+		}else {
+			request.setAttribute("msg", "비밀번호를 확인하세요");
+			jspAddress = "/member/joinErr.jsp";
+		}
+		
+		RequestDispatcher rd = request.getRequestDispatcher(jspAddress);
+		rd.forward(request, response);
+	
+		
+		
+	}
+
+}
